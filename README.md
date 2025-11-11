@@ -31,9 +31,6 @@ This is a static site—no backend required. You can publish it with any static 
 - GitHub Pages: serve the folder as the site root
 - Netlify/Vercel: drag-and-drop the folder or set build to “None”
 
-### Inspired by
-- `otp-api-provider-form` on GitHub ([link](https://github.com/anish-appbrew/otp-api-provider-form))
-
 ### License
 MIT
 
