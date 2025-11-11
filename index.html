@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Enterprise Plan Subscribe Link Builder</title>
+    <meta
+      name="description"
+      content="Generate subscribe-enterprise-plan links for Appbrew billing"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E🔗%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header class="header">
+        <h1>Enterprise Plan Link Builder</h1>
+        <p class="subtitle">
+          Create a subscribe URL for Appbrew enterprise billing
+        </p>
+      </header>
+
+      <section class="card">
+        <form id="builderForm" novalidate>
+          <div class="grid-2">
+            <div class="field">
+              <label for="shop"
+                >Shop domain<span aria-hidden="true" class="req">*</span></label
+              >
+              <input
+                id="shop"
+                name="shop"
+                type="text"
+                inputmode="url"
+                autocomplete="off"
+                required
+                placeholder="thesashbag-2.myshopify.com"
+              />
+              <small class="hint"
+                >Enter the full Shopify domain (e.g.
+                thesashbag-2.myshopify.com).</small
+              >
+              <div class="error" data-error-for="shop"></div>
+            </div>
+
+            <div class="field">
+              <label for="amount"
+                >Amount in USD<span aria-hidden="true" class="req"
+                  >*</span
+                ></label
+              >
+              <input
+                id="amount"
+                name="amountInUSD"
+                type="number"
+                min="1"
+                step="1"
+                required
+                placeholder="850"
+              />
+              <small class="hint">Whole USD amount to charge.</small>
+              <div class="error" data-error-for="amount"></div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="period"
+                >Billing period<span aria-hidden="true" class="req"
+                  >*</span
+                ></label
+              >
+              <select id="period" name="period" required>
+                <option value="MONTHLY" selected>MONTHLY</option>
+                <option value="YEARLY">YEARLY</option>
+              </select>
+              <small class="hint"
+                >Choose how often the customer is billed.</small
+              >
+              <div class="error" data-error-for="period"></div>
+            </div>
+
+            <div class="field">
+              <label>Payment provider</label>
+              <input type="text" value="STRIPE" readonly />
+              <small class="hint">Provider is fixed to STRIPE.</small>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="trialDays">Trial days</label>
+              <input
+                id="trialDays"
+                name="trialDays"
+                type="number"
+                min="0"
+                step="1"
+                placeholder="0"
+              />
+              <small class="hint"
+                >Optional. If a trial end date is set, this will be forced to
+                0.</small
+              >
+              <div class="error" data-error-for="trialDays"></div>
+            </div>
+
+            <div class="field">
+              <label for="trialEndDate">Trial end date (YYYY-MM-DD)</label>
+              <input
+                id="trialEndDate"
+                name="trialEndDate"
+                type="text"
+                inputmode="numeric"
+                placeholder="2025-12-31"
+              />
+              <small class="hint"
+                >Optional. Provide either trialDays or trialEndDate, not
+                both.</small
+              >
+              <div class="error" data-error-for="trialEndDate"></div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="variableFeePercentage">Variable fee percentage</label>
+              <input
+                id="variableFeePercentage"
+                name="variableFeePercentage"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="0"
+              />
+              <small class="hint"
+                >Optional. Percentage as a number (e.g. 2.5).</small
+              >
+              <div class="error" data-error-for="variableFeePercentage"></div>
+            </div>
+
+            <div class="field">
+              <label for="variableType">Variable type</label>
+              <select id="variableType" name="variableType">
+                <option value="SALES_BASED" selected>SALES_BASED</option>
+                <option value="USER_BASED">USER_BASED</option>
+              </select>
+              <small class="hint">Optional. Defaults to SALES_BASED.</small>
+              <div class="error" data-error-for="variableType"></div>
+            </div>
+          </div>
+
+          <details class="advanced">
+            <summary>Advanced options</summary>
+            <div class="field">
+              <label for="baseUrl">Base URL</label>
+              <input
+                id="baseUrl"
+                type="url"
+                value="https://api.appbrew.tech/billing/subscribe-enterprise-plan"
+                spellcheck="false"
+              />
+              <small class="hint"
+                >Change only if you know what you're doing.</small
+              >
+            </div>
+            <div class="field inline">
+              <input id="redirect" type="checkbox" checked />
+              <label for="redirect">Redirect immediately (recommended)</label>
+            </div>
+            <div class="field inline">
+              <input id="remember" type="checkbox" checked />
+              <label for="remember">Remember my inputs on this device</label>
+            </div>
+          </details>
+
+          <div class="actions">
+            <button type="submit" class="primary">Generate link</button>
+            <button
+              type="reset"
+              class="ghost"
+              id="resetBtn"
+              title="Clear all fields"
+            >
+              Reset
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title">Preview</h2>
+        <div class="preview">
+          <input
+            id="resultUrl"
+            type="url"
+            readonly
+            value=""
+            placeholder="Generated URL will appear here"
+          />
+          <div class="preview-actions">
+            <button class="secondary" id="copyBtn">Copy</button>
+            <button class="secondary" id="openBtn">Open</button>
+            <button class="ghost" id="shareBtn">Share</button>
+          </div>
+        </div>
+        <p class="example">Example format:</p>
+        <code class="example-code"
+          >https://api.appbrew.tech/billing/subscribe-enterprise-plan?shop=thesashbag-2.myshopify.com&amp;amountInUSD=850&amp;period=MONTHLY&amp;provider=STRIPE</code
+        >
+      </section>
+
+      <footer class="footer">
+        <span>Built for Appbrew billing tools</span>
+      </footer>
+    </main>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
