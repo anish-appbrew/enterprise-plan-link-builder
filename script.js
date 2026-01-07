@@ -99,9 +99,13 @@
     // Clear previous
     Object.values(ERRORS).forEach(el => (el.textContent = ''));
 
-    const shop = normalizedShop(shopInput.value);
+    const shopRaw = shopInput.value.trim();
+    const shop = normalizedShop(shopRaw);
     if (!shop) {
       ERRORS.shop.textContent = 'Shop domain is required.';
+      ok = false;
+    } else if (/^https?:\/\//i.test(shopRaw)) {
+      ERRORS.shop.textContent = 'Enter shop domain only, not a full URL.';
       ok = false;
     } else if (!/^[a-z0-9-]+\.myshopify\.com$/.test(shop)) {
       ERRORS.shop.textContent = 'Enter a valid *.myshopify.com domain.';
@@ -310,14 +314,21 @@
         saveState();
       });
     });
-    // Mutual exclusivity UX: disable the other field when one is filled
+    // Mutual exclusivity UX: clear and disable the other field when one is filled
     trialDaysInput.addEventListener('input', () => {
-      trialEndDateInput.disabled = !!trialDaysInput.value.trim();
+      if (trialDaysInput.value.trim()) {
+        trialEndDateInput.value = '';
+        trialEndDateInput.disabled = true;
+      } else {
+        trialEndDateInput.disabled = false;
+      }
     });
     trialEndDateInput.addEventListener('input', () => {
-      trialDaysInput.disabled = !!trialEndDateInput.value.trim();
       if (trialEndDateInput.value.trim()) {
-        trialDaysInput.value = '0';
+        trialDaysInput.value = '';
+        trialDaysInput.disabled = true;
+      } else {
+        trialDaysInput.disabled = false;
       }
     });
     copyBtn.addEventListener('click', copyToClipboard);
