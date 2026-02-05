@@ -84,9 +84,18 @@
             </div>
 
             <div class="field">
-              <label>Payment provider</label>
-              <input type="text" value="STRIPE" readonly />
-              <small class="hint">Provider is fixed to STRIPE.</small>
+              <label for="provider"
+                >Payment provider<span aria-hidden="true" class="req"
+                  >*</span
+                ></label
+              >
+              <select id="provider" name="provider" required>
+                <option value="STRIPE" selected>STRIPE</option>
+                <option value="SHOPIFY">SHOPIFY</option>
+              </select>
+              <small class="hint"
+                >SHOPIFY does not support trial end date.</small
+              >
             </div>
           </div>
 

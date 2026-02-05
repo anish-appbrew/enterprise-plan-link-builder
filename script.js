@@ -7,7 +7,8 @@
   const amountInput = document.getElementById('amount');
   /** @type {HTMLSelectElement} */
   const periodSelect = document.getElementById('period');
-  // provider is fixed to STRIPE, no select
+  /** @type {HTMLSelectElement} */
+  const providerSelect = document.getElementById('provider');
   /** @type {HTMLInputElement} */
   const baseUrlInput = document.getElementById('baseUrl');
   /** @type {HTMLInputElement} */
@@ -52,6 +53,7 @@
       shop: shopInput.value.trim(),
       amount: amountInput.value.trim(),
       period: periodSelect.value,
+      provider: providerSelect.value,
       baseUrl: baseUrlInput.value.trim(),
       trialDays: trialDaysInput.value.trim(),
       trialEndDate: trialEndDateInput.value.trim(),
@@ -76,6 +78,7 @@
       if (state.shop) shopInput.value = state.shop;
       if (state.amount) amountInput.value = state.amount;
       if (state.period) periodSelect.value = state.period;
+      if (state.provider) providerSelect.value = state.provider;
       if (state.baseUrl) baseUrlInput.value = state.baseUrl;
       if (state.trialDays) trialDaysInput.value = state.trialDays;
       if (state.trialEndDate) trialEndDateInput.value = state.trialEndDate;
@@ -184,7 +187,7 @@
     const shop = normalizedShop(shopInput.value);
     const amount = String(Number(amountInput.value));
     const period = periodSelect.value;
-    const provider = 'STRIPE';
+    const provider = providerSelect.value;
     const trialDaysValue = trialDaysInput.value.trim();
     const trialEndValue = trialEndDateInput.value.trim();
     const variableFee = variableFeePercentageInput.value.trim();
@@ -305,22 +308,44 @@
     }, 1300);
   }
 
+  function syncTrialEndDateState() {
+    const isShopify = providerSelect.value === 'SHOPIFY';
+    if (isShopify) {
+      trialEndDateInput.value = '';
+      trialEndDateInput.disabled = true;
+      // Re-enable trialDays since trialEndDate is cleared
+      if (!trialDaysInput.value.trim()) {
+        trialDaysInput.disabled = false;
+      }
+    } else {
+      // For STRIPE, only re-enable trialEndDate if trialDays isn't filled
+      if (!trialDaysInput.value.trim()) {
+        trialEndDateInput.disabled = false;
+      }
+    }
+  }
+
   function wireEvents() {
     form.addEventListener('submit', onSubmit);
-    [shopInput, amountInput, periodSelect, baseUrlInput, trialDaysInput, trialEndDateInput, variableFeePercentageInput, variableTypeSelect, redirectCheckbox].forEach(el => {
+    [shopInput, amountInput, periodSelect, providerSelect, baseUrlInput, trialDaysInput, trialEndDateInput, variableFeePercentageInput, variableTypeSelect, redirectCheckbox].forEach(el => {
       el.addEventListener('input', updatePreview);
       el.addEventListener('change', () => {
         updatePreview();
         saveState();
       });
     });
+    // When provider changes, sync trial end date availability
+    providerSelect.addEventListener('change', syncTrialEndDateState);
     // Mutual exclusivity UX: clear and disable the other field when one is filled
     trialDaysInput.addEventListener('input', () => {
       if (trialDaysInput.value.trim()) {
         trialEndDateInput.value = '';
         trialEndDateInput.disabled = true;
       } else {
-        trialEndDateInput.disabled = false;
+        // Only re-enable trialEndDate if provider is not SHOPIFY
+        if (providerSelect.value !== 'SHOPIFY') {
+          trialEndDateInput.disabled = false;
+        }
       }
     });
     trialEndDateInput.addEventListener('input', () => {
@@ -339,8 +364,9 @@
       resultUrl.value = '';
       setTimeout(() => {
         // Keep base URL and remember toggle on reset
-        trialEndDateInput.disabled = false;
         trialDaysInput.disabled = false;
+        // Only re-enable trialEndDate if provider is not SHOPIFY
+        trialEndDateInput.disabled = providerSelect.value === 'SHOPIFY';
         updatePreview();
         saveState();
       }, 0);
@@ -350,6 +376,7 @@
   // Bootstrap
   loadState();
   wireEvents();
+  syncTrialEndDateState();
   updatePreview();
 })();
 
